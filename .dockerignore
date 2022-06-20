@@ -1,0 +1,12 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Unnecessary to Docker
+.vscode
+.git*
+pytest.ini
+*.md
