@@ -17,6 +17,12 @@ import dotenv
 import sys
 import logging
 
+KC_HOST: str = ''
+KC_CLIENTID: str = ''
+KC_REALM: str = ''
+KC_SECRET: str = ''
+KC_CLIENT_2_CONFIG: str = ''
+
 LOGGER = logging.getLogger(__name__)
 
 envFile = '.env'

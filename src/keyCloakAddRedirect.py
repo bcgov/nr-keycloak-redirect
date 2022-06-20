@@ -2,19 +2,67 @@
 """
 
 import logging
+from typing import Optional, Union
 import constants
 import requests
+import argparse
+import sys
+import validators
+import kcTypes
+
+LOGGER = logging.getLogger(__name__)
+
+
+class ProcessArgs:
+
+    def __init__(self) -> None:
+        self.processArgs()
+
+    def processArgs(self) -> None:
+        parser = argparse.ArgumentParser(
+            description='Add redirect url to forest client'
+            )
+        parser.add_argument(
+            '-add', '--add-redirect-url', type=self.validUrl,
+            help='define the redirect url you want to add')
+        parser.add_argument(
+            '-del', '--delete-redirect-url', type=self.validUrl,
+            help='define the redirect url you want to remove')
+
+        args = parser.parse_args()
+
+        # deal if no args provided
+        if not args.add_redirect_url and \
+                not args.delete_redirect_url:
+            parser.print_help()
+            sys.exit()
+        elif args.add_redirect_url:
+            LOGGER.debug(f'adding redirect url: {args.add_redirect_url}')
+            kc:KeyCloakClient = KeyCloakClient()
+            kc.clientAddRedirect(args.add_redirect_url)
+
+        elif args.delete_redirect_url:
+            LOGGER.debug(f'removing redirect url: {args.delete_redirect_url}')
+            kc = KeyCloakClient()
+            kc.clientRemoveRedirect(args.delete_redirect_url)
+        else:
+            parser.print_help()
+
+    def validUrl(self, url: str) -> str:
+        if not validators.url(url):
+            raise ValueError("invalid url")
+        return url
 
 
 class KeyCloakClient:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.defaultHeaders = {'Accept': 'application/json'}
-        self.access_token = None
+        self.access_token: str = ''
 
         self.getAccessToken()
 
-    def getAccessToken(self):
+    def getAccessToken(self) -> None:
         """using client id and secret queries keycloak for access token
         """
         uri = f"{constants.KC_HOST}/auth/realms/{constants.KC_REALM}" + \
@@ -30,7 +78,7 @@ class KeyCloakClient:
         access_key = r.json()
         self.access_token = access_key['access_token']
 
-    def getClients(self):
+    def getClients(self) -> list[kcTypes.Client]:
         '''
         Retrieves a list of the client objects from keycloak.
         '''
@@ -49,7 +97,7 @@ class KeyCloakClient:
         data = response.json()
         return data
 
-    def getClient(self, clientID):
+    def getClient(self, clientID: str) -> Union[kcTypes.Client, None]:
         """gets a list of all the clients in the realm and returns only the
         client that matches the clientID provided
         """
@@ -60,7 +108,7 @@ class KeyCloakClient:
                 break
         return client
 
-    def getClientDefinition(self):
+    def getClientDefinition(self) -> Union[kcTypes.Client, None]:
         """Retrieves the client definition that is defined in the variable:
         constants.KC_CLIENT_2_CONFIG
 
@@ -69,23 +117,24 @@ class KeyCloakClient:
         :rtype: dict
         """
         client = self.getClient(constants.KC_CLIENT_2_CONFIG)
-        LOGGER.debug(f"clientid: {client['id']}")
+        if client:
+            LOGGER.debug(f"clientid: {client['id']}")
 
-        url = f"{constants.KC_HOST}/auth/admin/realms/{constants.KC_REALM}" + \
-              f"/clients/{client['id']}"  # noqa
-        LOGGER.debug(f"uri is: {url}")
+            url = f"{constants.KC_HOST}/auth/admin/realms/{constants.KC_REALM}" + \
+                f"/clients/{client['id']}"  # noqa
+            LOGGER.debug(f"uri is: {url}")
 
-        headers = {
-            "Authorization": "Bearer " + self.access_token,
-            'Content-type': 'application/json',
-            'Accept': 'application/json'}
-        # TODO: could put in error checking... raise error if dont' get 200
-        #       resp
-        r = requests.get(url, headers=headers)
-        client = r.json()
+            headers = {
+                "Authorization": "Bearer " + self.access_token,
+                'Content-type': 'application/json',
+                'Accept': 'application/json'}
+            # TODO: could put in error checking... raise error if dont' get 200
+            #       resp
+            r = requests.get(url, headers=headers)
+            client = r.json()
         return client
 
-    def clientHasRedirectUri(self, redirect, client=None):
+    def clientHasRedirectUri(self, redirect: str, client : Optional[kcTypes.Client] = None) -> bool: # noqa
         """returns a boolean indicating whether the supplied redirect url is
         defined as a redirect uri for the supplied client.
 
@@ -100,17 +149,18 @@ class KeyCloakClient:
             exists as a redirect url for the key cloak client
         :rtype: bool
         """
+        #                body: Optional[list[str]] = None
         if client is None:
             client = self.getClient(constants.KC_CLIENT_2_CONFIG)
         returnVal = False
         # TODO: could add some intelligence here to for comparing the various
         #  redirect uri's
-        if ('redirectUris' in client) and \
+        if (client and  ('redirectUris' in client)) and \
                 redirect.lower() in client['redirectUris']:
             returnVal = True
         return returnVal
 
-    def addRedirectUri(self, client, redirect):
+    def addRedirectUri(self, client: kcTypes.Client, redirect: str) -> kcTypes.Client:
         """ adds a redirect url to the client, doesn't check to see if the url
         already exists or not.
 
@@ -126,7 +176,7 @@ class KeyCloakClient:
         client['redirectUris'].append(redirect)
         return client
 
-    def deleteRedirectUri(self, client, redirect):
+    def deleteRedirectUri(self, client: kcTypes.Client, redirect: str) -> kcTypes.Client:
         """Looks for the redirect url in the client and if it exists then
         removes it
 
@@ -152,7 +202,7 @@ class KeyCloakClient:
             client['redirectUris'] = outputRedirects
         return client
 
-    def updateClientDefinition(self, clientJson):
+    def updateClientDefinition(self, clientJson: kcTypes.Client) -> None:
         """gets a client definition and updates the defined client in the api
 
         :param clientJson: the dict / json that is to be sent back to the
@@ -168,7 +218,7 @@ class KeyCloakClient:
         LOGGER.debug(f"r status-code: {r.status_code}")
         LOGGER.debug(r)
 
-    def clientAddRedirect(self, redirect):
+    def clientAddRedirect(self, redirect:str) -> None:
         """ adds the redirect url to the client that who's name is defined in
         the parameter: constants.KC_CLIENT_2_CONFIG
 
@@ -176,11 +226,11 @@ class KeyCloakClient:
         :type redirect: str
         """
         client = self.getClient(constants.KC_CLIENT_2_CONFIG)
-        if not self.clientHasRedirectUri(redirect, client=client):
+        if (client) and not self.clientHasRedirectUri(redirect, client=client):
             client = self.addRedirectUri(client, redirect)
             self.updateClientDefinition(client)
 
-    def clientRemoveRedirect(self, redirect):
+    def clientRemoveRedirect(self, redirect:str) -> None:
         """recieves the name of the redirect url that should be removed from the
         key cloak client
 
@@ -188,11 +238,12 @@ class KeyCloakClient:
         :type redirect: str
         """
         client = self.getClient(constants.KC_CLIENT_2_CONFIG)
-        if self.clientHasRedirectUri(redirect, client=client):
+        if (client) and self.clientHasRedirectUri(redirect, client=client):
             client = self.deleteRedirectUri(client, redirect)
             self.updateClientDefinition(client)
         else:
             LOGGER.info(f"redirect URI: {redirect} was not found in client")
+
 
 
 if __name__ == '__main__':
@@ -209,12 +260,4 @@ if __name__ == '__main__':
 
     LOGGER.debug(f"KEYCLOAK client that is being configured: {constants.KC_CLIENT_2_CONFIG}") # noqa
 
-    kc = KeyCloakClient()
-    kc.getClientDefinition()
-
-    testUri = 'https://fom-99.apps.silver.devops.gov.bc.ca/*'
-    if kc.clientHasRedirectUri(testUri):
-        LOGGER.debug('yes uri exists!!!')
-
-    #kc.clientAddRedirect(testUri) # noqa
-    kc.clientRemoveRedirect(testUri)
+    ProcessArgs()
