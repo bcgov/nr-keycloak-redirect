@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Add redirect step
         id: hello
-        uses: bcgov/nr-keycloak-redirect
+        uses: bcgov/nr-keycloak-redirect@v1
         with:
           add_delete: 'add'
           redirect: 'https://google.com'
