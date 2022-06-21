@@ -15,7 +15,8 @@ WORKDIR /home/${USER}
 COPY . .
 RUN pip install -r requirements.txt --no-warn-script-location
 RUN chmod +x entrypoint.sh
+RUN ls -la
 # Set entrypoint, will pass params
-ENTRYPOINT [ "ls -la" ]
+#ENTRYPOINT [ "ls -la" ]
 
-#ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "./entrypoint.sh" ]
