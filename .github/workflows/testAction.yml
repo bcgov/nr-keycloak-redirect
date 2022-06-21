@@ -1,0 +1,25 @@
+on: [push]
+
+jobs:
+  run-redirect-test:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    name: Add a redirect url
+    steps:
+      - name: Add redirect step
+        id: hello
+        uses: bcgov/nr-keycloak-redirect@v1
+        with:
+          add_delete: 'add'
+          redirect: 'https://google.com'
+          secret: ${{ secrets.KC_SECRET }}
+          clientid : ${{ secrets.KC_CLIENTID }}
+          realm: ${{ secrets.KC_REALM }}
+          host: ${{ secrets.KC_HOST }}
+          clientid_2: 'fom'
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
+
+
