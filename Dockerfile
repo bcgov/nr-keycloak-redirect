@@ -5,6 +5,7 @@ RUN pip install --upgrade pip
 
 # Set up non-root user
 ARG USER=python_runner
+ENV PATH=$PATH:/home/${USER}/.local/bin
 RUN useradd ${USER} && \
     mkdir -p /home/${USER} && \
     chown -R ${USER}:${USER} /home/${USER}
@@ -13,7 +14,7 @@ RUN useradd ${USER} && \
 USER ${USER}
 WORKDIR /home/${USER}
 COPY . .
-RUN pip install -r requirements.txt --no-warn-script-location
+RUN pip install -r requirements.txt
 
 # Set entrypoint, will pass params
 ENTRYPOINT [ "./entrypoint.sh" ]
