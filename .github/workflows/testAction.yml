@@ -7,19 +7,20 @@ jobs:
       name: dev
     name: Add a redirect url
     steps:
-      - name: Add redirect step
-        id: hello
-        uses: bcgov/nr-keycloak-redirect@v1
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Add
+        uses: ./
+        id: add
         with:
-          add_delete: 'add'
-          redirect: 'https://google.com'
+          add_delete: "add"
+          redirect: "https://google.com"
           secret: ${{ secrets.KC_SECRET }}
-          clientid : ${{ secrets.KC_CLIENTID }}
+          clientid: ${{ secrets.KC_CLIENTID }}
+          clientid_2: "fom"
           realm: ${{ secrets.KC_REALM }}
           host: ${{ secrets.KC_HOST }}
-          clientid_2: 'fom'
-      # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
-
-
+      - name: Output
+        run: |
+          echo "Output: ${{ steps.id }}"
