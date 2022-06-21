@@ -1,0 +1,42 @@
+name: "Keycloak Add/Delete Redirect"
+description: "Add or delete Keycloak redirects"
+inputs:
+  add_delete:
+    description: "Add or delete: [add|del]"
+    required: true
+  redirect:
+    description: "Redirect url to add or delete"
+    required: true
+  secret:
+    description: "Token"
+    required: true
+  clientid:
+    description: "Client to authenticate from"
+    default: "fom-admin"
+    required: false
+  realm:
+    description: "Realm to authenticate from"
+    default: "ichqx89w"
+    required: false
+  host:
+    description: "Host to authenticate from"
+    default: "https://dev.oidc.gov.bc.ca"
+    required: false
+  clientid_2:
+    description: "Different host to authenticate against (optional)"
+    default: "https://dev.oidc.gov.bc.ca"
+    required: false
+outputs:
+  time: # id of output
+    description: "The time we greeted you"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.add_delete }}
+    - ${{ inputs.redirect }}
+    - ${{ inputs.secret }}
+    - ${{ inputs.clientid }}
+    - ${{ inputs.realm }}
+    - ${{ inputs.host }}
+    - ${{ inputs.clientid_2 }}
