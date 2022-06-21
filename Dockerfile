@@ -13,7 +13,7 @@ RUN useradd ${USER} && \
 # Set up app
 USER ${USER}
 WORKDIR /home/${USER}
-COPY . .
+COPY --chown=${USER}:${USER} . .
 RUN pip install -r requirements.txt
 
 # Set entrypoint, will pass params
