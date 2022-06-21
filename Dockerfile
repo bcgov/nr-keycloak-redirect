@@ -16,4 +16,6 @@ COPY . .
 RUN pip install -r requirements.txt --no-warn-script-location
 RUN chmod +x entrypoint.sh
 # Set entrypoint, will pass params
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "ls -la" ]
+
+#ENTRYPOINT [ "./entrypoint.sh" ]
