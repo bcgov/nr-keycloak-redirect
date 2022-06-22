@@ -4,4 +4,4 @@ COPY . .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "./entrypoint.sh" ]
