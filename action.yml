@@ -1,5 +1,9 @@
+# action.yml
 name: "Keycloak Add/Delete Redirect"
 description: "Add or delete Keycloak redirects"
+branding:
+  icon: "lock"
+  color: "blue"
 inputs:
   add_delete:
     description: "Add or delete: [add|del]"
@@ -26,9 +30,6 @@ inputs:
     description: "Host to authenticate from"
     default: "https://dev.oidc.gov.bc.ca"
     required: false
-outputs:
-  time: # id of output
-    description: "The time we greeted you"
 runs:
   using: "docker"
   image: "Dockerfile"
