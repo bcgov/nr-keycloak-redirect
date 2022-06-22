@@ -4,6 +4,17 @@ on:
   # used on push for testing / development
   push:
     branches: ['nonpublish', 'main']
+    paths-ignore:
+      - .vscode/**
+      - .gitignore
+      - LICENSE
+      - readme.md
+      - code_of_conduct.md
+      - pyproject.toml
+      - .github/workflows/main-push.yml
+      - pytest.ini
+      - action.yml
+
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
     branches: ['master', 'main']
