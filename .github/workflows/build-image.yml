@@ -1,0 +1,78 @@
+name: build-gha-image
+
+on:
+  # used on push for testing / development
+  push:
+    branches: ['nonpublish', 'main']
+    paths-ignore:
+      - .vscode/**
+      - .gitignore
+      - LICENSE
+      - readme.md
+      - code_of_conduct.md
+      - pyproject.toml
+      - .github/workflows/main-push.yml
+      - pytest.ini
+      - action.yml
+
+  pull_request:
+    # debug: remove the dev,putting build action on non existent branches for debug
+    branches: ['master', 'main']
+    types: ['opened', 'reopened']
+    paths-ignore:
+      - .vscode/**
+      - .gitignore
+      - LICENSE
+      - readme.md
+      - code_of_conduct.md
+      - pyproject.toml
+      - .github/workflows/main-push.yml
+      - pytest.ini
+      - action.yml
+
+jobs:
+  # This workflow contains a single job called "build"
+  buildjob:
+    defaults:
+      run:
+        shell: bash
+
+    name: 'build github action docker image'
+    # The type of runner that the job will run on
+    # comment to trigger build
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_BUILDKIT: 0
+      DEBUG_DEPLOY: false
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      id: checkout
+      with:
+       fetch-depth: 0
+
+    - name: calculate image tag
+      id: calculateImageTag
+      shell: bash
+      run: |
+        DATESTAMP=$(date +%Y%m%d-%H%M)
+        echo datestamp is $DATESTAMP
+        echo ::set-output name=DATESTAMP::${DATESTAMP}
+        echo
+        echo ::set-output name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+
+    - name: Log in to GitHub Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and Push Client Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        push: true # Will only build if this is not here
+        tags: |
+          ghcr.io/${{ steps.calculateImageTag.outputs.IMAGE_REPOSITORY }}/kc-manage-redirect:latest
+          ghcr.io/${{ steps.calculateImageTag.outputs.IMAGE_REPOSITORY }}/kc-manage-redirect:${{ steps.calculateImageTag.outputs.DATESTAMP }}
