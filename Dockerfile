@@ -1,7 +1,8 @@
-FROM python:3.10
+FROM python:alpine3.15
 
 COPY . .
-RUN pip install --upgrade pip && \
+RUN apk add bash && \
+    pip install --upgrade pip && \
     pip install -r requirements.txt
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "./entrypoint.sh" ]
