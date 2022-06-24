@@ -14,4 +14,4 @@ export KC_REALM=${6}
 export KC_HOST=${7}
 
 # Run command
-python src/keyCloakAddRedirect.py -${ADD_DEL} ${REDIRECT}
+python /src/keyCloakAddRedirect.py -${ADD_DEL} ${REDIRECT}
