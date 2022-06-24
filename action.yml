@@ -41,4 +41,3 @@ runs:
     - ${{ inputs.clientid_2 }}
     - ${{ inputs.realm }}
     - ${{ inputs.host }}
-
