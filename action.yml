@@ -32,7 +32,7 @@ inputs:
     required: false
 runs:
   using: "docker"
-  image: "docker://ghcr.io/bcgov/nr-keycloak-redirect/kc-manage-redirect:20220623-2043"
+  image: "docker://ghcr.io/bcgov/nr-keycloak-redirect/kc-manage-redirect:latest"
   args:
     - ${{ inputs.add_delete }}
     - ${{ inputs.redirect }}
