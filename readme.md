@@ -1,3 +1,8 @@
+[![Issues](https://img.shields.io/github/issues/bcgov/nr-keycloak-redirect)](/../../issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/bcgov/nr-keycloak-redirect)](/../../pulls)
+[![MIT License](https://img.shields.io/github/license/bcgov/nr-keycloak-redirect.svg)](/LICENSE)
+[![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+
 # Add or Delete Redirect URIs in KeyCloak
 
 BC Government pipelines frequently use ephemeral development environments that
