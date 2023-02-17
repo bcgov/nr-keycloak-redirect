@@ -8,7 +8,7 @@ jobs:
     name: Add a redirect url
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Add
         uses: bcgov/nr-keycloak-redirect@main
